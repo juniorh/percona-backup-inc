@@ -305,7 +305,7 @@ def exec_innobackupex_backup():
       cmd.append('--incremental-basedir='+workDir+'/'+lastBackupDir)
     cmd.append(workDir+'/'+backupDir)
   logger.debug('Execute command: %s',cmd)
-  with open(logFile) as outProc:
+  with open(logFile,'a+') as outProc:
     proc = subprocess.Popen(cmd,stdout=outProc,stderr=subprocess.STDOUT)
     proc.communicate()
     if proc.returncode != 0:
@@ -348,7 +348,7 @@ def exec_innobackupex_restore():
     if not path[0:4] == 'full':
       cmd.append('--incremental-dir='+workDir+'/'+path)
     logger.debug('Running restore command: %s',cmd) 
-    with open(logFile) as outProc:
+    with open(logFile,'a+') as outProc:
       proc = subprocess.Popen(cmd,stdout=outProc,stderr=subprocess.STDOUT)
       proc.communicate()
       if proc.returncode != 0:
