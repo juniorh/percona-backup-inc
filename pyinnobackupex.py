@@ -1,4 +1,4 @@
-#/usr/bin/env python
+#!/usr/bin/env python
 ###################
 # Usage
 # python pyinnobackup.py --help
@@ -14,7 +14,6 @@
 #   pathDir/full_{timestamp:YYYY-MM-DD_hh-ss}
 #   pathDir/inc_1_{timestamp:YYYY-MM-DD_hh-ss}
 #   pathDir/inc_2_{timestamp:YYYY-MM-DD_hh-ss}
-
 
 from datetime import datetime
 import subprocess
@@ -118,6 +117,11 @@ def get_args_parser():
     type=str,
     help="Select variable")
   parser.add_argument(
+    "--daily",
+    default=False,
+    action='store_true',
+    help="Change backup directory every day")
+  parser.add_argument(
     "-b", "--backup",
     default=False,
     action='store_true',
@@ -147,6 +151,7 @@ def get_args_parser():
 
 def check_args():
   global workDir
+  global args
   if args.help:
     sys.exit(parser.print_help())
   if args.backup and not args.restore:
@@ -158,7 +163,19 @@ def check_args():
   if (args.restore and args.backup) or (not args.restore and not args.backup) :
     sys.exit(parser.print_help())
   if args.dir:
-    workDir = args.dir
+    logger.debug('ARGS: %s',args)
+    if args.daily:
+      logger.debug('Enable daily backup directory')
+      workDir = args.dir+'/sql_backup_'+curTime.strftime('%Y%m%d')
+      if not os.path.exists(workDir):
+        logger.debug('Daily backup directory %s not exist', workDir)
+        try:
+          os.makedirs(workDir)
+        except Exception, err:
+          logger.debug('Cant create directory %s - Error: %s', workDir, err)        
+          sys.exit()
+    else:
+      workDir = args.dir
     logger.debug('Set working directory: %s', workDir)
     logger.debug('Set tmp directory: %s', tmpDir)
   else:
@@ -260,14 +277,14 @@ def prepare_dir():
   global args
   global lastBackupDir
   global backupDir
-  if not os.path.exists(tmpDir):
-    try:
-      os.makedirs(tmpDir)
-    except Exception, err:
-      logger.exception('Cant create tmp dir %s: %s', tmpDir, err)
-      sys.exit()
-  else:
-    logger.debug('tmp dir exist on %s', tmpDir)
+  #if not os.path.exists(tmpDir):
+  #  try:
+  #    os.makedirs(tmpDir)
+  #  except Exception, err:
+  #    logger.exception('Cant create tmp dir %s: %s', tmpDir, err)
+  #    sys.exit()
+  #else:
+  #  logger.debug('tmp dir exist on %s', tmpDir)
   #check info.out & trace.out files
   if os.path.exists(workDir+'/info.out'):
     if os.path.isfile(workDir+'/info.out'):
