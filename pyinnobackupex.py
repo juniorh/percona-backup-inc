@@ -83,7 +83,7 @@ def get_args_parser():
     help="User for login")
   parser.add_argument(
     "-h", "--host",
-    default='localhost',
+    default=False,
     nargs='?',
     type=str,
     help="Host database server")
@@ -314,8 +314,9 @@ def exec_innobackupex_backup():
   if args.backup:
     cmd.append('--user='+args.user)
     cmd.append('--password='+args.password)
-    cmd.append('--host='+args.host)
-    cmd.append('--port='+args.port)
+    if args.host:
+      cmd.append('--host='+args.host)
+      cmd.append('--port='+args.port)
     cmd.append('--no-timestamp')
     if not isFullBackup:
       cmd.append('--incremental')
