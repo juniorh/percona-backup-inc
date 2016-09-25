@@ -392,6 +392,10 @@ def main():
   global tmpDir 
   parser = get_args_parser()
   args = parser.parse_args()
+  if args.help or not args.dir or not (args.backup or args.restore) :
+    parser.print_help()
+    parser.exit()
+    sys.exit()
   init_log()
   check_args()
   tmpDir = workDir
